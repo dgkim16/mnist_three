@@ -1,35 +1,131 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MNIST visulaization</title>
-  <script type = "importmap">
+  <title>MNIST Visualization</title>
+  <style>
+    :root {
+      --gap: 12px;
+      --panel-bg: #f7f7fb;
+      --border: #ddd;
+      --accent: #ff8a00;
+      --text: #222;
+      --muted: #666;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      background: #fff;
+    }
+    #app {
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(320px, 420px);
+      gap: var(--gap);
+      padding: var(--gap);
+      box-sizing: border-box;
+      min-height: 100vh;
+    }
+    #scenePanel, #controlPanel {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: var(--gap);
+      box-sizing: border-box;
+    }
+    #sceneCanvasWrap { width: 100%; height: 68vh; min-height: 360px; }
+    #status {
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    #buttonRow, #drawTools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    button, input[type='range'] {
+      cursor: pointer;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      margin: 8px 0;
+    }
+    canvas.draw {
+      border: 4px solid var(--accent);
+      border-radius: 4px;
+      background: #000;
+      touch-action: none;
+    }
+    .legend-item { margin: 2px 0; font-size: 13px; }
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    @media (max-width: 960px) {
+      #app { grid-template-columns: 1fr; }
+      #sceneCanvasWrap { height: 50vh; }
+    }
+  </style>
+  <script type="importmap">
     {
-        "imports": {
-          "three": "https://unpkg.com/three@v0.149.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@v0.149.0/examples/jsm/"
-        }
+      "imports": {
+        "three": "https://unpkg.com/three@v0.149.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@v0.149.0/examples/jsm/"
+      }
     }
   </script>
-  <!-- Import TensorFlow.js -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
-  <!-- Import tfjs-vis -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
-
-  <!-- Import the data file -->
   <script src="data.js" type="module"></script>
-
-  <!-- Import the main script file -->
   <script src="script.js" type="module"></script>
-
-
-
-    
-
 </head>
-
 <body>
+  <div id="app">
+    <section id="scenePanel">
+      <h2>Model Visualization</h2>
+      <div id="status">Initializing…</div>
+      <div class="card"><strong>Current 28x28 input</strong><br><canvas id="topInputPreview" class="draw" width="28" height="28" style="width:84px;height:84px"></canvas></div>
+      <div id="sceneCanvasWrap"></div>
+      <div class="card" id="legend">
+        <strong>Legend</strong>
+        <div class="legend-item"><span class="dot" style="background:#00ff00"></span>Conv2D</div>
+        <div class="legend-item"><span class="dot" style="background:#ff00ff"></span>MaxPooling2D</div>
+        <div class="legend-item"><span class="dot" style="background:#0000ff"></span>Flatten</div>
+        <div class="legend-item"><span class="dot" style="background:#ff4500"></span>Dense</div>
+        <div class="legend-item">Edges: green (+), red (-), thicker = higher |weight|</div>
+      </div>
+      <div id="filtersContainer" class="card"><strong>Filter Preview</strong></div>
+    </section>
+
+    <section id="controlPanel">
+      <h2>Controls</h2>
+      <div id="buttonRow"></div>
+      <div class="card">
+        <strong>Draw a digit</strong>
+        <canvas id="drawCanvas" class="draw" width="280" height="280"></canvas>
+        <canvas id="resizedCanvas" class="draw" width="28" height="28"></canvas>
+        <div id="drawTools"></div>
+      </div>
+      <div class="card">
+        <strong>Prediction</strong>
+        <div id="predictionText">No prediction yet.</div>
+      </div>
+      <div class="card">
+        <strong>Model status</strong>
+        <div id="modelStatus">Not loaded</div>
+      </div>
+    </section>
+  </div>
 </body>
 </html>
