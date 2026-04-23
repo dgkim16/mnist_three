@@ -278,7 +278,7 @@ function resize3D() {
     const width = container.clientWidth;
     const height = container.clientHeight;
     if (width === 0 || height === 0) return;
-    renderer3d.setSize(width, height, false);
+    renderer3d.setSize(width, height);
     camera3d.aspect = width / height;
     camera3d.updateProjectionMatrix();
 }
